@@ -2249,6 +2249,8 @@ providers:
       response_format: file://./response-schema.json
 ```
 
+Legacy `apiHost` and newer `apiBaseUrl` Azure configurations both support the same Responses reasoning and verbosity options.
+
 For comprehensive Azure Responses API documentation, see the [Azure provider documentation](/docs/providers/azure#azure-responses-api).
 
 ### Complete Example
