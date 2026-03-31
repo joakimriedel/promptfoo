@@ -224,9 +224,16 @@ export class OpenAiResponsesProvider extends OpenAiGenericProvider {
         ? getEnvInt('OPENAI_MAX_COMPLETION_TOKENS')
         : getEnvInt('OPENAI_MAX_TOKENS', 1024));
 
-    const temperature = this.supportsTemperature()
-      ? (config.temperature ?? getEnvFloat('OPENAI_TEMPERATURE', 0))
-      : undefined;
+    // Suppress temperature when reasoning is active (effort > "none").
+    // GPT-5 at reasoning_effort: "none" supports temperature normally.
+    // For non-reasoning models detected by name, use the existing supportsTemperature() check.
+    const activeReasoningEffort = config.reasoning_effort ?? config.reasoning?.effort;
+    const hasActiveReasoning =
+      activeReasoningEffort !== undefined && activeReasoningEffort !== 'none';
+    const temperature =
+      !this.supportsTemperature() || hasActiveReasoning
+        ? undefined
+        : (config.temperature ?? getEnvFloat('OPENAI_TEMPERATURE', 0));
     const reasoningEffort = isReasoningModel
       ? (renderVarsInObject(config.reasoning_effort, context?.vars) as ReasoningEffort)
       : undefined;
